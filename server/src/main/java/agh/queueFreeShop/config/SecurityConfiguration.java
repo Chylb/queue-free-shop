@@ -13,8 +13,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
+@EnableSwagger2
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
@@ -46,11 +48,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests(a -> a
-                        .antMatchers("/login", "/error", "/register", "/h2","/h2/**").permitAll()
+                        .antMatchers("/login", "/error", "/register", "/h2", "/h2/**",
+                                "/v2/api-docs",
+                                "/configuration/ui",
+                                "/swagger-resources/**",
+                                "/configuration/security",
+                                "/swagger-ui.html",
+                                "/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e
-                        .defaultAuthenticationEntryPointFor( new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), new AntPathRequestMatcher("**"))
+                        .defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), new AntPathRequestMatcher("**"))
                 )
                 .formLogin()
                 .successHandler(new CustomAuthenticationSuccessHandler())

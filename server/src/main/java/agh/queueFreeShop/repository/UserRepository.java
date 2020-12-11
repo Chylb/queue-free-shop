@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import agh.queueFreeShop.model.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>{
-	User findByUsername(String username);
+public interface UserRepository extends JpaRepository<User, Long> {
+    User findByUsername(String username);
 }

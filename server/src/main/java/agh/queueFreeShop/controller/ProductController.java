@@ -23,12 +23,12 @@ public class ProductController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getProductByID(@RequestParam(value = "id", required = false) Long id,
-                                            @RequestParam(value = "barcode", required = false) String barcode) {
+    public ResponseEntity<?> getProduct(@RequestParam(value = "id", required = false) Long id,
+                                        @RequestParam(value = "barcode", required = false) String barcode) {
         Optional<Product> product;
         if (id != null)
             product = productRepository.findById(id);
-        else if(barcode != null)
+        else if (barcode != null)
             product = productRepository.findByBarcode(barcode);
         else
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Message");
