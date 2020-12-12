@@ -13,8 +13,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping(path = "/products")
 public class ProductController {
-    @Autowired
-    ProductRepository productRepository;
+    private final ProductRepository productRepository;
+
+    ProductController(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     @GetMapping("/all")
     public List<Product> getAll() {

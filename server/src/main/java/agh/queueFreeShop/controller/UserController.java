@@ -3,7 +3,6 @@ package agh.queueFreeShop.controller;
 import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.UserRepository;
 import agh.queueFreeShop.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -12,10 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 public class UserController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserRepository userRepository;
+    private final UserService userService;
+    private final UserRepository userRepository;
+
+    UserController(UserService userService, UserRepository userRepository) {
+        this.userService = userService;
+        this.userRepository = userRepository;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUserAccount(@RequestBody User requestUser) {
