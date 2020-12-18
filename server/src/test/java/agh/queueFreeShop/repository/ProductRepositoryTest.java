@@ -25,24 +25,17 @@ public class ProductRepositoryTest {
     }
 
     @Test
-    public void cost_should_be_positive(){
+    public void price_should_be_positive(){
         List<Product> products = repository.findAll();
         for(Product p : products) {
-            assertThat(p.getCost()).isGreaterThan(0);
+            assertThat(p.getPrice()).isGreaterThan(0);
         }
     }
 
     @Test
     public void should_find_product_by_barcode(){
-        Optional<Product> p = repository.findByBarcode("996379301167");
-        assertThat(p.isPresent()).isTrue();
-        assertThat(p.get().getBarcode()).isEqualTo("996379301167");
-    }
-
-    @Test
-    public void should_find_product_by_id(){
-        Optional<Product> p = repository.findById(1);
-        assertThat(p.isPresent()).isTrue();
-        assertThat(p.get().getId()).isEqualTo(1);
+        Product p = repository.findByBarcode("996379301167");
+        assertThat(p != null).isTrue();
+        assertThat(p.getBarcode()).isEqualTo("996379301167");
     }
 }

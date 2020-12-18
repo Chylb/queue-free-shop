@@ -2,13 +2,14 @@ package agh.queueFreeShop.controller;
 
 import agh.queueFreeShop.model.Product;
 import agh.queueFreeShop.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/products")
@@ -19,25 +20,18 @@ public class ProductController {
         this.productRepository = productRepository;
     }
 
-    @GetMapping("/all")
+    @GetMapping("")
     public List<Product> getAll() {
-        List<Product> products = productRepository.findAll();
-        return products;
+        return productRepository.findAll();
     }
 
-    @GetMapping("")
-    public ResponseEntity<?> getProduct(@RequestParam(value = "id", required = false) Long id,
-                                        @RequestParam(value = "barcode", required = false) String barcode) {
-        Optional<Product> product;
-        if (id != null)
-            product = productRepository.findById(id);
-        else if (barcode != null)
-            product = productRepository.findByBarcode(barcode);
-        else
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error Message");
+    @GetMapping("/{barcode}")
+    public ResponseEntity<?> getProduct(@PathVariable String barcode) {
+        Product product = productRepository.findByBarcode(barcode);
 
-        if (product.isPresent())
-            return ResponseEntity.ok(product.get());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error Message");
+        if (product == null)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error Message");
+
+        return ResponseEntity.ok(product);
     }
 }

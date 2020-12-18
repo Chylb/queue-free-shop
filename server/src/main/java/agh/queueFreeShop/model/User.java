@@ -1,5 +1,6 @@
 package agh.queueFreeShop.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,16 +15,17 @@ import javax.persistence.Id;
 @Getter
 @Entity
 public class User {
-	@Id
-	@GeneratedValue(strategy =  GenerationType.IDENTITY)
-	private Long id;
-	
-	private String username;
-	
-	private String password;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	public User(String username, String password) {
-		this.username = username;
-		this.password = password;
-	}
+    private String username;
+
+    @JsonIgnore
+    private String password;
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 }

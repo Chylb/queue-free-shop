@@ -3,7 +3,11 @@ INSERT INTO user (username,password) VALUES
 /* #password: haslo*/
 
 
-INSERT INTO product (name,cost,barcode) VALUES
+INSERT INTO shopping_cart (user_id) VALUES
+(1);
+
+
+INSERT INTO product (name,price,barcode) VALUES
 ('one', 1,'123456789011'),
 ('two', 2, '123456789012'),
 ('three', 3, '123456789013'),

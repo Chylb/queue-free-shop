@@ -12,13 +12,10 @@ import javax.persistence.*;
 @Entity
 public class Product {
     @Id
-    @GeneratedValue(strategy =  GenerationType.IDENTITY)
-    private Long id;
-
     @Column(length = 12)
     private String barcode;
 
     private String name;
 
-    private int cost;
+    private int price;
 }
