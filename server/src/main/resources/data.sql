@@ -2,11 +2,6 @@ INSERT INTO user (username,password) VALUES
 ('user', '$2a$10$IMrN844rN4iZB0TzJdgs7.2BtsT2j2YZuKFQLF07OByxe4Vy1apna');
 /* #password: haslo*/
 
-
-INSERT INTO shopping_cart (user_id) VALUES
-(1);
-
-
 INSERT INTO product (name,price,barcode) VALUES
 ('one', 1,'123456789011'),
 ('two', 2, '123456789012'),

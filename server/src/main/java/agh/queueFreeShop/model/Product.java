@@ -6,6 +6,11 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+/**
+ * Representation of available products.
+ * Only one product exists with given barcode.
+ */
+
 @NoArgsConstructor
 @Setter
 @Getter

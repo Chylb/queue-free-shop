@@ -34,6 +34,6 @@ public class UserController {
 
     @GetMapping("/user")
     public ResponseEntity<?> getUser(Principal principal) {
-        return ResponseEntity.ok(userRepository.findByUsername(principal.getName()));
+        return ResponseEntity.ok(userRepository.findById(Long.parseLong(principal.getName())));
     }
 }

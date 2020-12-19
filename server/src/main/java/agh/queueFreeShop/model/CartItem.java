@@ -1,12 +1,16 @@
 package agh.queueFreeShop.model;
 
-import agh.queueFreeShop.service.ShopService;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+
+/**
+ * Product wrapper that also contains information about quantity of the product in a ShoppingCart.
+ * CartItem is persisted as long as ShoppingCart that contains it.
+ */
 
 @NoArgsConstructor
 @Setter

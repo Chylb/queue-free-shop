@@ -10,6 +10,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Represents content of a shopping cart.
+ */
+
 @NoArgsConstructor
 @Setter
 @Getter
@@ -26,9 +30,13 @@ public class ShoppingCart {
     @OneToMany(cascade = {CascadeType.ALL})
     private Set<CartItem> items;
 
+    /**
+     * Returns CartItem of given product.
+     * Returns null if there is no such a product in ShoppingCart.
+     */
     public CartItem getCartItem(Product product) {
         for (CartItem item : items) {
-            if (item.getProduct() == product)
+            if (item.getProduct().getBarcode().equals(product.getBarcode()))
                 return item;
         }
         return null;

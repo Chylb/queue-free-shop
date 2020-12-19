@@ -2,6 +2,7 @@ package agh.queueFreeShop.controller;
 
 import agh.queueFreeShop.model.Receipt;
 import agh.queueFreeShop.model.ShoppingCart;
+import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
 import agh.queueFreeShop.service.ShopService;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.HashSet;
 
 @RestController
 @RequestMapping(path = "/shoppingCart")
@@ -57,5 +59,19 @@ public class ShoppingCartController {
         Receipt receipt = shopService.finalizeShopping(cart);
 
         return ResponseEntity.ok(receipt);
+    }
+
+    //TODO: REMOVE THIS BODGE
+    @PostMapping("/enter")
+    public ResponseEntity<?> enter(Principal principal) {
+        User user = new User();
+        user.setId( Long.parseLong(principal.getName()));
+
+        ShoppingCart cart = new ShoppingCart();
+        cart.setUser(user);
+        cart.setItems(new HashSet<>());
+        cart = shoppingCartRepository.save(cart);
+
+        return ResponseEntity.ok(cart);
     }
 }

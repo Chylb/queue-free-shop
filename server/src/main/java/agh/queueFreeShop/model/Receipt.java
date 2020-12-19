@@ -7,6 +7,10 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.List;
 
+/**
+ * Represents shopping receipt.
+ */
+
 @NoArgsConstructor
 @Setter
 @Getter
