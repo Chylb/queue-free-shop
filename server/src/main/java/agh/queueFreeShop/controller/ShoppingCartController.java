@@ -5,11 +5,14 @@ import agh.queueFreeShop.model.ShoppingCart;
 import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
 import agh.queueFreeShop.service.ShopService;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.HashSet;
 
 @RestController
@@ -24,14 +27,16 @@ public class ShoppingCartController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getShoppingCart(Principal principal) {
-        ShoppingCart cart = shoppingCartRepository.getByUserId(Long.parseLong(principal.getName()));
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
+    public ResponseEntity<?> getShoppingCart() {
+        ShoppingCart cart = shoppingCartRepository.getByUserId(getUserId());
         return ResponseEntity.ok(cart);
     }
 
     @PostMapping
-    public ResponseEntity<?> addProduct(Principal principal, @RequestParam String barcode) {
-        ShoppingCart cart = shoppingCartRepository.getByUserId(Long.parseLong(principal.getName()));
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
+    public ResponseEntity<?> addProduct(@RequestParam String barcode) {
+        ShoppingCart cart = shoppingCartRepository.getByUserId(getUserId());
         try {
             shopService.addProductToCart(cart, barcode);
         } catch (Exception e) {
@@ -42,8 +47,9 @@ public class ShoppingCartController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> removeProduct(Principal principal, @RequestParam String barcode) {
-        ShoppingCart cart = shoppingCartRepository.getByUserId(Long.parseLong(principal.getName()));
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
+    public ResponseEntity<?> removeProduct(@RequestParam String barcode) {
+        ShoppingCart cart = shoppingCartRepository.getByUserId(getUserId());
         try {
             shopService.removeProductFromCart(cart, barcode);
         } catch (Exception e) {
@@ -54,8 +60,9 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/finalize")
-    public ResponseEntity<?> finalize(Principal principal) {
-        ShoppingCart cart = shoppingCartRepository.getByUserId(Long.parseLong(principal.getName()));
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = Receipt.class)})
+    public ResponseEntity<?> finalizeShopping() {
+        ShoppingCart cart = shoppingCartRepository.getByUserId(getUserId());
         Receipt receipt = shopService.finalizeShopping(cart);
 
         return ResponseEntity.ok(receipt);
@@ -63,9 +70,10 @@ public class ShoppingCartController {
 
     //TODO: REMOVE THIS BODGE
     @PostMapping("/enter")
-    public ResponseEntity<?> enter(Principal principal) {
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
+    public ResponseEntity<?> enter() {
         User user = new User();
-        user.setId( Long.parseLong(principal.getName()));
+        user.setId( getUserId());
 
         ShoppingCart cart = new ShoppingCart();
         cart.setUser(user);
@@ -73,5 +81,10 @@ public class ShoppingCartController {
         cart = shoppingCartRepository.save(cart);
 
         return ResponseEntity.ok(cart);
+    }
+
+    private Long getUserId(){
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return Long.parseLong(user.getUsername());
     }
 }

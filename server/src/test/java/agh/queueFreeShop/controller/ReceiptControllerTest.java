@@ -4,6 +4,7 @@ import agh.queueFreeShop.model.Receipt;
 import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.ReceiptRepository;
 import agh.queueFreeShop.service.UserService;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,8 +38,7 @@ public class ReceiptControllerTest {
     @MockBean
     private UserService userService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false);
 
     @BeforeEach
     void setup() {
@@ -88,7 +88,7 @@ public class ReceiptControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        Receipt[] receipts = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Receipt[].class);
+        Receipt[] receipts = mapper.readValue(mvcResult.getResponse().getContentAsString(), Receipt[].class);
 
         assertThat(receipts.length).isEqualTo(1);
         for(Receipt receipt : receipts) {

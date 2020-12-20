@@ -2,6 +2,10 @@ package agh.queueFreeShop.controller;
 
 import agh.queueFreeShop.model.Product;
 import agh.queueFreeShop.repository.ProductRepository;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +30,7 @@ public class ProductController {
     }
 
     @GetMapping("/{barcode}")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = Product.class)})
     public ResponseEntity<?> getProduct(@PathVariable String barcode) {
         Product product = productRepository.findByBarcode(barcode);
 
