@@ -73,8 +73,8 @@ public class ShoppingCartTest {
     @Test
     public void receipt_items_should_have_positive_quantity() {
         Receipt receipt = cart.generateReceipt();
-        for (int quantity : receipt.getProductsQuantities()){
-            assertThat(quantity).isGreaterThan(0);
+        for (ReceiptItem item: receipt.getItems()){
+            assertThat(item.getQuantity()).isGreaterThan(0);
         }
     }
 }

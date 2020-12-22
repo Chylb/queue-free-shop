@@ -6,8 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -43,25 +42,23 @@ public class ShoppingCart {
     }
 
     public Receipt generateReceipt() {
+        Receipt receipt = new Receipt();
+        Set<ReceiptItem> receiptItems = new LinkedHashSet<>();
+
         int total = 0;
-        List<String> productsNames = new LinkedList<>();
-        List<Integer> productsPrices = new LinkedList<>();
-        List<Integer> productsQuantities = new LinkedList<>();
 
-        for (CartItem item : items) {
-            if (item.getQuantity() == 0) continue;
+        for (CartItem cartItem : items) {
+            if (cartItem.getQuantity() == 0) continue;
 
-            productsNames.add(item.getProduct().getName());
-            productsPrices.add(item.getProduct().getPrice());
-            productsQuantities.add(item.getQuantity());
-            total += item.getProduct().getPrice() * item.getQuantity();
+            ReceiptItem receiptItem = cartItem.generateReceiptItem();
+            receiptItem.setReceipt(receipt);
+            receiptItems.add(receiptItem);
+
+            total += receiptItem.getPrice() * receiptItem.getQuantity();
         }
 
-        Receipt receipt = new Receipt();
         receipt.setTotal(total);
-        receipt.setProductsNames(productsNames);
-        receipt.setProductsPrices(productsPrices);
-        receipt.setProductsQuantities(productsQuantities);
+        receipt.setItems(receiptItems);
         receipt.setUser(user);
         return receipt;
     }

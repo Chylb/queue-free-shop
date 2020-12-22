@@ -1,0 +1,6 @@
+agh\queueFreeShop\repository\ProductRepositoryTest.class
+agh\queueFreeShop\model\ShoppingCartTest.class
+agh\queueFreeShop\IntegrationTest.class
+agh\queueFreeShop\service\UserServiceTest.class
+agh\queueFreeShop\controller\ProductControllerTest.class
+agh\queueFreeShop\controller\ReceiptControllerTest.class

@@ -146,10 +146,8 @@ public class IntegrationTest {
 
         Receipt receipt = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Receipt.class);
         assertThat(receipt).isNotNull();
-        assertThat(receipt.getProductsNames()).isNotNull();
-        assertThat(receipt.getProductsPrices()).isNotNull();
-        assertThat(receipt.getProductsQuantities()).isNotNull();
-        assertThat(receipt.getProductsQuantities().size()).isEqualTo(1);
+        assertThat(receipt.getItems()).isNotNull();
+        assertThat(receipt.getItems().size()).isEqualTo(1);
         assertThat(receipt.getTotal()).isEqualTo(2);
 
         receiptId = receipt.getId();
@@ -180,10 +178,8 @@ public class IntegrationTest {
 
         Receipt receipt = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Receipt.class);
         assertThat(receipt).isNotNull();
-        assertThat(receipt.getProductsNames()).isNotNull();
-        assertThat(receipt.getProductsPrices()).isNotNull();
-        assertThat(receipt.getProductsQuantities()).isNotNull();
-        assertThat(receipt.getProductsQuantities().size()).isEqualTo(1);
+        assertThat(receipt.getItems()).isNotNull();
+        assertThat(receipt.getItems().size()).isEqualTo(1);
         assertThat(receipt.getTotal()).isEqualTo(2);
     }
 }

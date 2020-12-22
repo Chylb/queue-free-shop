@@ -45,4 +45,16 @@ public class CartItem {
         this.product = product;
         this.quantity = quantity;
     }
+
+    /**
+     * Generates ReceiptItem needed to construct receipt.
+     */
+    public ReceiptItem generateReceiptItem(){
+        ReceiptItem receiptItem = new ReceiptItem();
+        receiptItem.setProductName(product.getName());
+        receiptItem.setPrice(product.getPrice());
+        receiptItem.setQuantity(quantity);
+
+        return receiptItem;
+    }
 }

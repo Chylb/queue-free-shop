@@ -6,27 +6,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.Set;
 
 /**
- * Represents shopping receipt. It consists of ReceiptItem objects.
+ * Represents item on Receipt.
  */
 
 @NoArgsConstructor
 @Setter
 @Getter
 @Entity
-public class Receipt {
+public class ReceiptItem {
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
-    long id;
+    @JsonIgnore
+    private long id;
 
     @ManyToOne
     @JsonIgnore
-    private User user;
+    private Receipt receipt;
 
-    @OneToMany(cascade = {CascadeType.ALL})
-    private Set<ReceiptItem> items;
-
-    int total;
+    private int quantity;
+    private String productName;
+    private int price; //of single product
 }
