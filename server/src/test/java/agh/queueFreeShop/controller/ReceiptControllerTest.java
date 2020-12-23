@@ -1,11 +1,13 @@
 package agh.queueFreeShop.controller;
 
 import agh.queueFreeShop.model.Receipt;
+import agh.queueFreeShop.model.ReceiptItem;
 import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.ReceiptRepository;
 import agh.queueFreeShop.service.UserService;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,16 +16,20 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+/**
+ * Unit test of ReceiptController.
+ */
 
 @WebMvcTest(value = ReceiptController.class)
 @AutoConfigureMockMvc
@@ -40,6 +46,9 @@ public class ReceiptControllerTest {
 
     private ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false);
 
+    private Receipt receipt;
+    private ReceiptItem receiptItem;
+
     @BeforeEach
     void setup() {
         User user = new User();
@@ -48,9 +57,17 @@ public class ReceiptControllerTest {
         User user2 = new User();
         user2.setId(2L);
 
-        Receipt receipt = new Receipt();
+        receipt = new Receipt();
         receipt.setId(1);
         receipt.setUser(user);
+        receipt.setTotal(10);
+
+        receiptItem = new ReceiptItem();
+        receiptItem.setPrice(5);
+        receiptItem.setQuantity(2);
+        receiptItem.setProductName("productName");
+        Set<ReceiptItem> receiptItems = Sets.newHashSet(receiptItem);
+        receipt.setItems(receiptItems);
 
         Receipt receipt2 = new Receipt();
         receipt2.setId(2);
@@ -84,15 +101,71 @@ public class ReceiptControllerTest {
 
     @Test
     public void should_get_all_receipts() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/receipts"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts"))
                 .andExpect(status().isOk())
-                .andReturn();
+                .andExpect(jsonPath("*", hasSize(1)));
+    }
 
-        Receipt[] receipts = mapper.readValue(mvcResult.getResponse().getContentAsString(), Receipt[].class);
+    @Test
+    public void receipt_json_should_contain_total_price() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("total").value(receipt.getTotal()));
+    }
 
-        assertThat(receipts.length).isEqualTo(1);
-        for(Receipt receipt : receipts) {
-            assertThat(receipt.getUser().getId()).isEqualTo(1);
-        }
+    @Test
+    public void receipt_json_should_contain_items() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(1)));
+    }
+
+    @Test
+    public void receipt_json_shouldnt_contain_user() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("user").doesNotHaveJsonPath());
+    }
+
+    @Test
+    public void receipt_json_should_contain_3_fields() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(3)));
+    }
+
+    @Test
+    public void receiptItem_json_should_contain_product_name() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].productName").value(receiptItem.getProductName()));
+    }
+
+    @Test
+    public void receiptItem_json_should_contain_price() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].price").value(receiptItem.getPrice()));
+    }
+
+    @Test
+    public void receiptItem_json_should_contain_quantity() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].quantity").value(receiptItem.getQuantity()));
+    }
+
+    @Test
+    public void receiptItem_json_shouldnt_contain_receipt() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].receipt").doesNotHaveJsonPath());
+    }
+
+    @Test
+    public void receiptItem_json_should_contain_3_fields() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].*", hasSize(3)));
     }
 }

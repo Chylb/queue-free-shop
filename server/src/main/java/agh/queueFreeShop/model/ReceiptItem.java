@@ -25,7 +25,7 @@ public class ReceiptItem {
     @JsonIgnore
     private Receipt receipt;
 
-    private int quantity;
     private String productName;
+    private int quantity;
     private int price; //of single product
 }

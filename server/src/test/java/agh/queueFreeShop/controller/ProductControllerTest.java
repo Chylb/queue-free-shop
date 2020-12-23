@@ -13,14 +13,19 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.Arrays;
+
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Unit test of ProductController.
+ */
+
 @WebMvcTest(value = ProductController.class)
-//@AutoConfigureMockMvc
 @AutoConfigureMockMvc(addFilters = false)
-//@ActiveProfiles("test")
 public class ProductControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -31,15 +36,18 @@ public class ProductControllerTest {
     @MockBean
     private UserService userService;
 
+    private Product product;
+
     @BeforeEach
     void setup() {
-        Product product = new Product();
+        product = new Product();
         product.setName("Product");
         product.setBarcode("123456789012");
         product.setPrice(1);
 
         given(this.productRepository.findByBarcode("123456789012")).willReturn(product);
         given(this.productRepository.findByBarcode("000000000000")).willReturn(null);
+        given(this.productRepository.findAll()).willReturn(Arrays.asList(product));
     }
 
     @Test
@@ -53,5 +61,40 @@ public class ProductControllerTest {
     public void should_get_404_when_wrong_barcode() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/products/000000000000"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void should_get_all_products() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/products"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    public void product_json_should_contain_barcode() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/products/123456789012"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("barcode").value(product.getBarcode()));
+    }
+
+    @Test
+    public void product_json_should_contain_product_name() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/products/123456789012"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name").value(product.getName()));
+    }
+
+    @Test
+    public void product_json_should_contain_price() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/products/123456789012"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("price").value(product.getPrice()));
+    }
+
+    @Test
+    public void product_json_should_contain_3_fields() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/products/123456789012"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(3)));
     }
 }

@@ -15,6 +15,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration test of UserService.
+ */
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -69,7 +73,7 @@ public class UserServiceTest {
         mvc.perform(get("/user"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("username").exists())
-                .andExpect(jsonPath("password").doesNotExist());
+                .andExpect(jsonPath("password").doesNotHaveJsonPath());
     }
 
     @Test

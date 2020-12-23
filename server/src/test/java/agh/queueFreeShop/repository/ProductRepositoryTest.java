@@ -9,6 +9,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Data test of ProductRepository.
+ */
+
 @DataJpaTest
 public class ProductRepositoryTest {
 
@@ -32,9 +36,23 @@ public class ProductRepositoryTest {
     }
 
     @Test
+    public void name_should_have_some_length(){
+        List<Product> products = repository.findAll();
+        for(Product p : products) {
+            assertThat(p.getName().length()).isGreaterThan(0);
+        }
+    }
+
+    @Test
     public void should_find_product_by_barcode(){
         Product p = repository.findByBarcode("996379301167");
         assertThat(p != null).isTrue();
         assertThat(p.getBarcode()).isEqualTo("996379301167");
+    }
+
+    @Test
+    public void shouldnt_find_product_when_wrong_barcode(){
+        Product p = repository.findByBarcode("000000000000");
+        assertThat(p == null).isTrue();
     }
 }
