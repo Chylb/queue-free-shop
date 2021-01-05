@@ -20,10 +20,10 @@ public class ProductRepositoryTest {
     protected ProductRepository repository;
 
     @Test
-    public void barcode_length_should_be_12(){
+    public void barcode_length_should_be_13(){
         List<Product> products = repository.findAll();
         for(Product p : products) {
-            assertThat(p.getBarcode().length()).isEqualTo(12);
+            assertThat(p.getBarcode().length()).isEqualTo(13);
         }
     }
 
@@ -32,6 +32,14 @@ public class ProductRepositoryTest {
         List<Product> products = repository.findAll();
         for(Product p : products) {
             assertThat(p.getPrice()).isGreaterThan(0);
+        }
+    }
+
+    @Test
+    public void weight_should_be_positive(){
+        List<Product> products = repository.findAll();
+        for(Product p : products) {
+            assertThat(p.getWeight()).isGreaterThan(0);
         }
     }
 
@@ -45,9 +53,9 @@ public class ProductRepositoryTest {
 
     @Test
     public void should_find_product_by_barcode(){
-        Product p = repository.findByBarcode("996379301167");
+        Product p = repository.findByBarcode("5996379301167");
         assertThat(p != null).isTrue();
-        assertThat(p.getBarcode()).isEqualTo("996379301167");
+        assertThat(p.getBarcode()).isEqualTo("5996379301167");
     }
 
     @Test

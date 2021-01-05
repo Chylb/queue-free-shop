@@ -42,7 +42,7 @@ public class ShopServiceTest {
     @Autowired
     private ReceiptRepository receiptRepository;
 
-    private String barcode1 = "123456789011";
+    private String barcode1 = "0123456789011";
 
     @Test
     void cart_should_be_empty() throws Exception {

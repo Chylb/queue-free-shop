@@ -1,5 +1,6 @@
 package agh.queueFreeShop.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,10 +18,13 @@ import javax.persistence.*;
 @Entity
 public class Product {
     @Id
-    @Column(length = 12)
+    @Column(length = 13)
     private String barcode;
 
     private String name;
 
     private int price;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private int weight;
 }
