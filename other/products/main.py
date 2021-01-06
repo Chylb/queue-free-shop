@@ -48,6 +48,9 @@ for index, row in df.iterrows():
     barcode = row['code']
     
     if len(barcode) != 13: continue
+
+    image = row['image_small_url']
+    if not isinstance(image, str): continue
         
     product_name = row['product_name']
     if not isinstance(product_name, str): continue
@@ -55,7 +58,7 @@ for index, row in df.iterrows():
     product_name = product_name +" "+quantity
     product_name = re.sub("'", "''", product_name)
     
-    out_row = "('"+str(product_name)+"',"+str(price)+",'"+barcode+"',"+str(weight)+'),\n'
+    out_row = "('"+str(product_name)+"',"+str(price)+",'"+barcode+"',"+str(weight)+",'"+image+"'),\n"
     
     fout.write(out_row)
 

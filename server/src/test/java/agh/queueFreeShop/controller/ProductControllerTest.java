@@ -45,6 +45,7 @@ public class ProductControllerTest {
         product.setName("Product");
         product.setBarcode("123456789012");
         product.setPrice(1);
+        product.setImageUrl("url");
 
         given(this.productService.getProduct("123456789012")).willReturn(product);
         given(this.productService.getProduct("000000000000")).willThrow(new NotFoundException("msg"));
@@ -93,9 +94,16 @@ public class ProductControllerTest {
     }
 
     @Test
-    public void product_json_should_contain_3_fields() throws Exception {
+    public void product_json_should_contain_image_url() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/products/123456789012"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", hasSize(3)));
+                .andExpect(jsonPath("imageUrl").value(product.getImageUrl()));
+    }
+
+    @Test
+    public void product_json_should_contain_4_fields() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/products/123456789012"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(4)));
     }
 }

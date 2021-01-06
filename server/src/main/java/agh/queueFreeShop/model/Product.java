@@ -25,6 +25,8 @@ public class Product {
 
     private int price;
 
+    private String imageUrl;
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private int weight;
 }
