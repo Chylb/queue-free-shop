@@ -1,10 +1,11 @@
 package agh.queueFreeShop.controller;
 
+import agh.queueFreeShop.exception.NotFoundException;
 import agh.queueFreeShop.model.CartItem;
 import agh.queueFreeShop.model.Product;
 import agh.queueFreeShop.model.ShoppingCart;
-import agh.queueFreeShop.repository.ProductRepository;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
+import agh.queueFreeShop.service.ProductService;
 import agh.queueFreeShop.service.ShopService;
 import agh.queueFreeShop.service.UserService;
 import com.google.common.collect.Sets;
@@ -40,7 +41,7 @@ public class ShoppingCartControllerTest {
     private UserService userService;
 
     @MockBean
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @MockBean
     private ShoppingCartRepository shoppingCartRepository;
@@ -65,7 +66,8 @@ public class ShoppingCartControllerTest {
         Set<CartItem> items = Sets.newHashSet(item1);
         cart.setItems(items);
 
-        given(this.productRepository.findByBarcode("0123456789012")).willReturn(new Product());
+        given(this.productService.getProduct("0123456789012")).willReturn(new Product());
+        given(this.productService.getProduct("000")).willThrow(new NotFoundException("msg"));
         given(this.shoppingCartRepository.getByUserId(1L)).willReturn(cart);
         given(this.shoppingCartRepository.getByUserId(2L)).willReturn(null);
         given(this.shopService.finalizeShopping(cart)).willReturn(cart.generateReceipt());

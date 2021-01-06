@@ -1,7 +1,6 @@
 package agh.queueFreeShop.controller;
 
 import agh.queueFreeShop.exception.ForbiddenException;
-import agh.queueFreeShop.exception.UnprocessableEntityException;
 import agh.queueFreeShop.exception.NotFoundException;
 import agh.queueFreeShop.model.Product;
 import agh.queueFreeShop.model.Receipt;
@@ -9,6 +8,7 @@ import agh.queueFreeShop.model.ShoppingCart;
 import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.ProductRepository;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
+import agh.queueFreeShop.service.ProductService;
 import agh.queueFreeShop.service.ShopService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -23,12 +23,12 @@ import java.util.HashSet;
 @RequestMapping(path = "/shoppingCart")
 public class ShoppingCartController {
     private final ShoppingCartRepository shoppingCartRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
     private final ShopService shopService;
 
-    ShoppingCartController(ShoppingCartRepository shoppingCartRepository, ProductRepository productRepository, ShopService shopService) {
+    ShoppingCartController(ShoppingCartRepository shoppingCartRepository, ProductService productService, ShopService shopService) {
         this.shoppingCartRepository = shoppingCartRepository;
-        this.productRepository = productRepository;
+        this.productService = productService;
         this.shopService = shopService;
     }
 
@@ -42,9 +42,7 @@ public class ShoppingCartController {
     @PostMapping
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
     public ResponseEntity<?> addProduct(@RequestParam String barcode) {
-        Product product = productRepository.findByBarcode(barcode);
-        if(product == null)
-            throw new NotFoundException("Product not found");
+        Product product = productService.getProduct(barcode);
 
         ShoppingCart cart = getUsersShoppingCart();
         shopService.addProductToCart(cart, product);
@@ -55,9 +53,7 @@ public class ShoppingCartController {
     @DeleteMapping
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
     public ResponseEntity<?> removeProduct(@RequestParam String barcode) {
-        Product product = productRepository.findByBarcode(barcode);
-        if(product == null)
-            throw new NotFoundException("Product not found");
+        Product product = productService.getProduct(barcode);
 
         ShoppingCart cart = getUsersShoppingCart();
         shopService.removeProductFromCart(cart, product);

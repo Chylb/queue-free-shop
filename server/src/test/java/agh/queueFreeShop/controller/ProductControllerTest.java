@@ -1,8 +1,9 @@
 package agh.queueFreeShop.controller;
 
 
+import agh.queueFreeShop.exception.NotFoundException;
 import agh.queueFreeShop.model.Product;
-import agh.queueFreeShop.repository.ProductRepository;
+import agh.queueFreeShop.service.ProductService;
 import agh.queueFreeShop.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ public class ProductControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @MockBean
     private UserService userService;
@@ -45,9 +46,9 @@ public class ProductControllerTest {
         product.setBarcode("123456789012");
         product.setPrice(1);
 
-        given(this.productRepository.findByBarcode("123456789012")).willReturn(product);
-        given(this.productRepository.findByBarcode("000000000000")).willReturn(null);
-        given(this.productRepository.findAll()).willReturn(Arrays.asList(product));
+        given(this.productService.getProduct("123456789012")).willReturn(product);
+        given(this.productService.getProduct("000000000000")).willThrow(new NotFoundException("msg"));
+        given(this.productService.getAllProducts()).willReturn(Arrays.asList(product));
     }
 
     @Test
