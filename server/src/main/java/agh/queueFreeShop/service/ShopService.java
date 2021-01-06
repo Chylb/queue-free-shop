@@ -1,5 +1,6 @@
 package agh.queueFreeShop.service;
 
+import agh.queueFreeShop.exception.NotFoundException;
 import agh.queueFreeShop.model.CartItem;
 import agh.queueFreeShop.model.Product;
 import agh.queueFreeShop.model.Receipt;
@@ -18,13 +19,11 @@ import javax.transaction.Transactional;
 
 @Service
 public class ShopService {
-    private final ProductRepository productRepository;
     private final ShoppingCartRepository cartRepository;
     private final ReceiptRepository receiptRepository;
     private final CartItemRepository cartItemRepository;
 
-    ShopService(ProductRepository productRepository, ShoppingCartRepository cartRepository, ReceiptRepository receiptRepository, CartItemRepository cartItemRepository) {
-        this.productRepository = productRepository;
+    ShopService(ShoppingCartRepository cartRepository, ReceiptRepository receiptRepository, CartItemRepository cartItemRepository) {
         this.cartRepository = cartRepository;
         this.receiptRepository = receiptRepository;
         this.cartItemRepository = cartItemRepository;
@@ -34,12 +33,7 @@ public class ShopService {
      * Adds one product into ShoppingCart.
      */
     @Transactional
-    public void addProductToCart(ShoppingCart cart, String barcode) {
-        Product product = productRepository.findByBarcode(barcode);
-
-        if (product == null)
-            throw new IllegalArgumentException("Can't find product");
-
+    public void addProductToCart(ShoppingCart cart, Product product) {
         CartItem cartItem = cart.getCartItem(product);
         if (cartItem == null) {
             cartItem = new CartItem(cart, product, 1);
@@ -55,12 +49,7 @@ public class ShopService {
      * Removes one product from ShoppingCart. If quantity is 0, CartItem is also removed.
      */
     @Transactional
-    public void removeProductFromCart(ShoppingCart cart, String barcode) {
-        Product product = productRepository.findByBarcode(barcode);
-
-        if (product == null)
-            throw new IllegalArgumentException("Can't find product");
-
+    public void removeProductFromCart(ShoppingCart cart, Product product) {
         CartItem cartItem = cart.getCartItem(product);
         if (cartItem != null) {
             if (cartItem.getQuantity() == 1) {

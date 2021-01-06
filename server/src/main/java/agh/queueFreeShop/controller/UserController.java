@@ -1,5 +1,6 @@
 package agh.queueFreeShop.controller;
 
+import agh.queueFreeShop.exception.UnprocessableEntityException;
 import agh.queueFreeShop.model.ShoppingCart;
 import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.UserRepository;
@@ -28,10 +29,10 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUserAccount(@RequestBody User requestUser) {
         User user = userRepository.findByUsername(requestUser.getUsername());
-        if (user == null) {
-            return ResponseEntity.ok(userService.save(requestUser).getId());
-        }
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Error Message");
+        if (user != null)
+            throw new UnprocessableEntityException("Username already exists");
+
+        return ResponseEntity.ok(userService.save(requestUser).getId());
     }
 
     @GetMapping("/user")

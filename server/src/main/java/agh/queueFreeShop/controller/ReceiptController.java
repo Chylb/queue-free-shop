@@ -1,11 +1,12 @@
 package agh.queueFreeShop.controller;
 
-import agh.queueFreeShop.model.Product;
+import agh.queueFreeShop.exception.ForbiddenException;
+import agh.queueFreeShop.exception.UnprocessableEntityException;
+import agh.queueFreeShop.exception.NotFoundException;
 import agh.queueFreeShop.model.Receipt;
 import agh.queueFreeShop.repository.ReceiptRepository;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,9 +29,9 @@ public class ReceiptController {
     public ResponseEntity<?> getById(@PathVariable Long id) {
         Receipt receipt = receiptRepository.getById(id);
         if (receipt == null)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error Message");
+            throw new NotFoundException("Receipt not found");
         if (!receipt.getUser().getId().equals(getUserId()))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error Message");
+            throw new ForbiddenException("Access forbidden");
 
         return ResponseEntity.ok(receipt);
     }

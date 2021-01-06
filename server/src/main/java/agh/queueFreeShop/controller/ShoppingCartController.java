@@ -1,13 +1,17 @@
 package agh.queueFreeShop.controller;
 
+import agh.queueFreeShop.exception.ForbiddenException;
+import agh.queueFreeShop.exception.UnprocessableEntityException;
+import agh.queueFreeShop.exception.NotFoundException;
+import agh.queueFreeShop.model.Product;
 import agh.queueFreeShop.model.Receipt;
 import agh.queueFreeShop.model.ShoppingCart;
 import agh.queueFreeShop.model.User;
+import agh.queueFreeShop.repository.ProductRepository;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
 import agh.queueFreeShop.service.ShopService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,29 +23,31 @@ import java.util.HashSet;
 @RequestMapping(path = "/shoppingCart")
 public class ShoppingCartController {
     private final ShoppingCartRepository shoppingCartRepository;
+    private final ProductRepository productRepository;
     private final ShopService shopService;
 
-    ShoppingCartController(ShoppingCartRepository shoppingCartRepository, ShopService shopService) {
+    ShoppingCartController(ShoppingCartRepository shoppingCartRepository, ProductRepository productRepository, ShopService shopService) {
         this.shoppingCartRepository = shoppingCartRepository;
+        this.productRepository = productRepository;
         this.shopService = shopService;
     }
 
     @GetMapping
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
     public ResponseEntity<?> getShoppingCart() {
-        ShoppingCart cart = shoppingCartRepository.getByUserId(getUserId());
+        ShoppingCart cart = getUsersShoppingCart();
         return ResponseEntity.ok(cart);
     }
 
     @PostMapping
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
     public ResponseEntity<?> addProduct(@RequestParam String barcode) {
-        ShoppingCart cart = shoppingCartRepository.getByUserId(getUserId());
-        try {
-            shopService.addProductToCart(cart, barcode);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error Message");
-        }
+        Product product = productRepository.findByBarcode(barcode);
+        if(product == null)
+            throw new NotFoundException("Product not found");
+
+        ShoppingCart cart = getUsersShoppingCart();
+        shopService.addProductToCart(cart, product);
 
         return ResponseEntity.ok(cart);
     }
@@ -49,12 +55,12 @@ public class ShoppingCartController {
     @DeleteMapping
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
     public ResponseEntity<?> removeProduct(@RequestParam String barcode) {
-        ShoppingCart cart = shoppingCartRepository.getByUserId(getUserId());
-        try {
-            shopService.removeProductFromCart(cart, barcode);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error Message");
-        }
+        Product product = productRepository.findByBarcode(barcode);
+        if(product == null)
+            throw new NotFoundException("Product not found");
+
+        ShoppingCart cart = getUsersShoppingCart();
+        shopService.removeProductFromCart(cart, product);
 
         return ResponseEntity.ok(cart);
     }
@@ -62,7 +68,7 @@ public class ShoppingCartController {
     @PostMapping("/finalize")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = Receipt.class)})
     public ResponseEntity<?> finalizeShopping() {
-        ShoppingCart cart = shoppingCartRepository.getByUserId(getUserId());
+        ShoppingCart cart = getUsersShoppingCart();
         Receipt receipt = shopService.finalizeShopping(cart);
 
         return ResponseEntity.ok(receipt);
@@ -81,6 +87,15 @@ public class ShoppingCartController {
         cart = shoppingCartRepository.save(cart);
 
         return ResponseEntity.ok(cart);
+    }
+
+    private ShoppingCart getUsersShoppingCart(){
+        Long userId = getUserId();
+        ShoppingCart cart = shoppingCartRepository.getByUserId(userId);
+        if(cart == null)
+            throw new ForbiddenException("Client not in shop");
+
+        return cart;
     }
 
     private Long getUserId(){

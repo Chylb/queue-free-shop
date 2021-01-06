@@ -3,6 +3,7 @@ package agh.queueFreeShop.controller;
 import agh.queueFreeShop.model.CartItem;
 import agh.queueFreeShop.model.Product;
 import agh.queueFreeShop.model.ShoppingCart;
+import agh.queueFreeShop.repository.ProductRepository;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
 import agh.queueFreeShop.service.ShopService;
 import agh.queueFreeShop.service.UserService;
@@ -39,6 +40,9 @@ public class ShoppingCartControllerTest {
     private UserService userService;
 
     @MockBean
+    private ProductRepository productRepository;
+
+    @MockBean
     private ShoppingCartRepository shoppingCartRepository;
 
     @MockBean
@@ -61,7 +65,9 @@ public class ShoppingCartControllerTest {
         Set<CartItem> items = Sets.newHashSet(item1);
         cart.setItems(items);
 
+        given(this.productRepository.findByBarcode("0123456789012")).willReturn(new Product());
         given(this.shoppingCartRepository.getByUserId(1L)).willReturn(cart);
+        given(this.shoppingCartRepository.getByUserId(2L)).willReturn(null);
         given(this.shopService.finalizeShopping(cart)).willReturn(cart.generateReceipt());
     }
 
@@ -73,17 +79,50 @@ public class ShoppingCartControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "2")
+    void should_receive_403_when_getCart_while_not_in_shop() throws Exception {
+        mockMvc.perform(get("/shoppingCart"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void should_add_product() throws Exception {
-        mockMvc.perform(post("/shoppingCart?barcode=123456789012"))
+        mockMvc.perform(post("/shoppingCart?barcode=0123456789012"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)));
     }
 
     @Test
+    void should_receive_404_when_adding_nonexistent_product() throws Exception {
+        mockMvc.perform(post("/shoppingCart?barcode=000"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "2")
+    void should_receive_403_when_addProduct_while_not_in_shop() throws Exception {
+        mockMvc.perform(post("/shoppingCart?barcode=0123456789012"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void should_remove_product() throws Exception {
-        mockMvc.perform(delete("/shoppingCart?barcode=123456789012"))
+        mockMvc.perform(delete("/shoppingCart?barcode=0123456789012"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("items", hasSize(1)));
+    }
+
+    @Test
+    void should_receive_404_when_removing_nonexistent_product() throws Exception {
+        mockMvc.perform(delete("/shoppingCart?barcode=000"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "2")
+    void should_receive_403_when_removeProduct_while_not_in_shop() throws Exception {
+        mockMvc.perform(delete("/shoppingCart?barcode=0123456789012"))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -91,6 +130,13 @@ public class ShoppingCartControllerTest {
         mockMvc.perform(post("/shoppingCart/finalize"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("total").value(1));
+    }
+
+    @Test
+    @WithMockUser(username = "2")
+    void should_receive_403_when_finalizeShopping_while_not_in_shop() throws Exception {
+        mockMvc.perform(post("/shoppingCart/finalize"))
+                .andExpect(status().isForbidden());
     }
 
     @Test

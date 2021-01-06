@@ -1,11 +1,10 @@
 package agh.queueFreeShop.controller;
 
+import agh.queueFreeShop.exception.NotFoundException;
 import agh.queueFreeShop.model.Product;
 import agh.queueFreeShop.repository.ProductRepository;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.ResponseHeader;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +34,7 @@ public class ProductController {
         Product product = productRepository.findByBarcode(barcode);
 
         if (product == null)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error Message");
+            throw new NotFoundException("Product not found");
 
         return ResponseEntity.ok(product);
     }
