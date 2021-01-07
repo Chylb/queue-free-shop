@@ -12,6 +12,7 @@ import agh.queueFreeShop.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.HashSet;
 
 import static java.lang.Math.abs;
@@ -78,6 +79,7 @@ public class ShopService {
     @Transactional
     public Receipt finalizeShopping(ShoppingCart cart) {
         Receipt receipt = cart.generateReceipt();
+        receipt.setDate( new Date());
         cart.setFinalized(true);
         cartRepository.save(cart);
         return receiptRepository.save(receipt);

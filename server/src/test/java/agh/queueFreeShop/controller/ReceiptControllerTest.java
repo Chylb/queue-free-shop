@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -61,6 +62,7 @@ public class ReceiptControllerTest {
         receipt.setId(1);
         receipt.setUser(user);
         receipt.setTotal(10);
+        receipt.setDate(new Date());
 
         receiptItem = new ReceiptItem();
         receiptItem.setPrice(5);
@@ -121,6 +123,13 @@ public class ReceiptControllerTest {
     }
 
     @Test
+    public void receipt_json_should_contain_date() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("date").exists());
+    }
+
+    @Test
     public void receipt_json_shouldnt_contain_user() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
                 .andExpect(status().isOk())
@@ -128,10 +137,10 @@ public class ReceiptControllerTest {
     }
 
     @Test
-    public void receipt_json_should_contain_3_fields() throws Exception {
+    public void receipt_json_should_contain_4_fields() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/receipts/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", hasSize(3)));
+                .andExpect(jsonPath("$.*", hasSize(4)));
     }
 
     @Test

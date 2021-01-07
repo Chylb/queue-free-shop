@@ -29,4 +29,7 @@ public class Receipt {
     private Set<ReceiptItem> items;
 
     int total;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private java.util.Date date;
 }
