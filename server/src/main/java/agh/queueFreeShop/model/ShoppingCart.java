@@ -1,6 +1,7 @@
 package agh.queueFreeShop.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,12 @@ public class ShoppingCart {
 
     @OneToMany(cascade = {CascadeType.ALL})
     private Set<CartItem> items;
+
+    @JsonIgnore
+    private int initialWeight;
+
+    @JsonIgnore
+    private boolean finalized;
 
     /**
      * Returns CartItem of given product.
@@ -61,5 +68,15 @@ public class ShoppingCart {
         receipt.setItems(receiptItems);
         receipt.setUser(user);
         return receipt;
+    }
+
+    @JsonIgnore
+    public int getProductsWeight() {
+        int productsWeight = 0;
+
+        for (CartItem item : items)
+            productsWeight += item.getQuantity() * item.getProduct().getWeight();
+
+        return productsWeight;
     }
 }

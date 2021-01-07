@@ -22,16 +22,19 @@ public class ShoppingCartTest {
     @BeforeEach
     public void setup() {
         cart = new ShoppingCart();
+        cart.setInitialWeight(10);
 
         p1 = new Product();
         p1.setBarcode("98765432101");
         p1.setPrice(1);
         p1.setName("One");
+        p1.setWeight(1);
 
         p2 = new Product();
         p2.setBarcode("98765432102");
         p2.setPrice(2);
         p2.setName("Two");
+        p2.setWeight(2);
 
         p3 = new Product();
         p3.setBarcode("00000000000");
@@ -68,7 +71,7 @@ public class ShoppingCartTest {
     }
 
     @Test
-    public void receipt_good_total_amount() {
+    public void receipt_correct_total_amount() {
         Receipt receipt = cart.generateReceipt();
         assertThat(receipt).isNotNull();
         assertThat(receipt.getTotal()).isEqualTo(2);
@@ -80,5 +83,15 @@ public class ShoppingCartTest {
         for (ReceiptItem item: receipt.getItems()){
             assertThat(item.getQuantity()).isGreaterThan(0);
         }
+    }
+
+    @Test
+    public void should_return_correct_initial_weight() {
+        assertThat(cart.getInitialWeight()).isEqualTo(10);
+    }
+
+    @Test
+    public void should_return_correct_products_weight() {
+        assertThat(cart.getProductsWeight()).isEqualTo(2);
     }
 }

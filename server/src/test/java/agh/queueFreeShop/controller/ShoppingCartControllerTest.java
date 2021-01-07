@@ -4,6 +4,7 @@ import agh.queueFreeShop.exception.NotFoundException;
 import agh.queueFreeShop.model.CartItem;
 import agh.queueFreeShop.model.Product;
 import agh.queueFreeShop.model.ShoppingCart;
+import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
 import agh.queueFreeShop.service.ProductService;
 import agh.queueFreeShop.service.ShopService;
@@ -18,16 +19,22 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Unit test of ShoppingCartController.
+ *
+ * users:
+ * 1 - shopping customer
+ * 2 - user outside the shop
+ * 3 - customer that already finalized shopping
  */
 
 @WebMvcTest(value = ShoppingCartController.class)
@@ -50,9 +57,12 @@ public class ShoppingCartControllerTest {
     private ShopService shopService;
 
     private ShoppingCart cart;
+    private User user = new User();
 
     @BeforeEach
     void setup() {
+        user.setId(1L);
+
         cart = new ShoppingCart();
 
         Product product1 = new Product();
@@ -66,12 +76,22 @@ public class ShoppingCartControllerTest {
         Set<CartItem> items = Sets.newHashSet(item1);
         cart.setItems(items);
 
+        ShoppingCart finalizedCart = new ShoppingCart();
+        finalizedCart.setFinalized(true);
+
+        ShoppingCart emptyCart = new ShoppingCart();
+        emptyCart.setItems(new LinkedHashSet<>());
+
         given(this.productService.getProduct("0123456789012")).willReturn(new Product());
         given(this.productService.getProduct("000")).willThrow(new NotFoundException("msg"));
         given(this.shoppingCartRepository.getByUserId(1L)).willReturn(cart);
         given(this.shoppingCartRepository.getByUserId(2L)).willReturn(null);
+        given(this.shoppingCartRepository.getByUserId(3L)).willReturn(finalizedCart);
         given(this.shopService.finalizeShopping(cart)).willReturn(cart.generateReceipt());
+        given(this.shopService.onCustomerConfirmedEntry(any())).willReturn(emptyCart);
     }
+
+    //getCart()
 
     @Test
     void should_get_cart() throws Exception {
@@ -86,6 +106,15 @@ public class ShoppingCartControllerTest {
         mockMvc.perform(get("/shoppingCart"))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    @WithMockUser(username = "3")
+    void should_receive_403_when_getCart_and_cart_is_finalized() throws Exception {
+        mockMvc.perform(get("/shoppingCart"))
+                .andExpect(status().isForbidden());
+    }
+
+    //addProduct()
 
     @Test
     void should_add_product() throws Exception {
@@ -108,6 +137,15 @@ public class ShoppingCartControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "3")
+    void should_receive_403_when_addProduct_and_cart_is_finalized() throws Exception {
+        mockMvc.perform(post("/shoppingCart?barcode=0123456789012"))
+                .andExpect(status().isForbidden());
+    }
+
+    //removeProduct()
+
+    @Test
     void should_remove_product() throws Exception {
         mockMvc.perform(delete("/shoppingCart?barcode=0123456789012"))
                 .andExpect(status().isOk())
@@ -128,6 +166,15 @@ public class ShoppingCartControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "3")
+    void should_receive_403_when_removeProduct_and_cart_is_finalized() throws Exception {
+        mockMvc.perform(delete("/shoppingCart?barcode=0123456789012"))
+                .andExpect(status().isForbidden());
+    }
+
+    //finalizeShopping()
+
+    @Test
     void should_finalize_shopping() throws Exception {
         mockMvc.perform(post("/shoppingCart/finalize"))
                 .andExpect(status().isOk())
@@ -142,6 +189,33 @@ public class ShoppingCartControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "3")
+    void should_receive_403_when_finalizeShopping_and_cart_is_finalized() throws Exception {
+        mockMvc.perform(post("/shoppingCart/finalize"))
+                .andExpect(status().isForbidden());
+    }
+
+    //confirmEntry()
+
+    @Test
+    void should_confirm_entry() throws Exception {
+        mockMvc.perform(post("/shoppingCart/confirmEntry"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("items", hasSize(0)));
+    }
+
+    //confirmExit()
+
+    @Test
+    void should_confirm_exit() throws Exception {
+        mockMvc.perform(post("/shoppingCart/confirmExit"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+    }
+
+    //JSON
+
+    @Test
     void cart_json_should_contain_items() throws Exception {
         mockMvc.perform(get("/shoppingCart"))
                 .andExpect(status().isOk())
@@ -153,6 +227,20 @@ public class ShoppingCartControllerTest {
         mockMvc.perform(get("/shoppingCart"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("user").doesNotHaveJsonPath());
+    }
+
+    @Test
+    void cart_json_shouldnt_contain_initialWeight() throws Exception {
+        mockMvc.perform(get("/shoppingCart"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("initialWeight").doesNotHaveJsonPath());
+    }
+
+    @Test
+    void cart_json_shouldnt_contain_finalized() throws Exception {
+        mockMvc.perform(get("/shoppingCart"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("finalized").doesNotHaveJsonPath());
     }
 
     @Test
