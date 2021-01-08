@@ -4,20 +4,19 @@ import agh.queueFreeShop.physical.scanner.EntranceScanner;
 import agh.queueFreeShop.physical.scanner.ExitScanner;
 import agh.queueFreeShop.physical.weight.EntranceWeight;
 import agh.queueFreeShop.physical.weight.ExitWeight;
-import agh.queueFreeShop.service.ShopService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/physical")
+@PreAuthorize("hasRole('ROLE_PHYSICAL_INFRASTRUCTURE')")
 public class PhysicalController {
-    private ShopService shopService;
-    private EntranceWeight entranceWeight;
-    private ExitWeight exitWeight;
-    private EntranceScanner entranceScanner;
-    private ExitScanner exitScanner;
+    private final EntranceWeight entranceWeight;
+    private final ExitWeight exitWeight;
+    private final EntranceScanner entranceScanner;
+    private final ExitScanner exitScanner;
 
-    PhysicalController(ShopService shopService, EntranceWeight entranceWeight, ExitWeight exitWeight, EntranceScanner entranceScanner, ExitScanner exitScanner) {
-        this.shopService = shopService;
+    PhysicalController(EntranceWeight entranceWeight, ExitWeight exitWeight, EntranceScanner entranceScanner, ExitScanner exitScanner) {
         this.entranceWeight = entranceWeight;
         this.exitWeight = exitWeight;
         this.entranceScanner = entranceScanner;

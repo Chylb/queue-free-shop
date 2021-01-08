@@ -3,14 +3,15 @@ package agh.queueFreeShop.service;
 import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -28,8 +29,12 @@ public class UserService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Invalid username or password.");
         }
-        return new org.springframework.security.core.userdetails.User( user.getId().toString(), user.getPassword(), new LinkedList<GrantedAuthority>() {
-        });
+
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        if (username.equals("PHYSICAL_INFRASTRUCTURE"))
+            authorities.add(new SimpleGrantedAuthority("ROLE_PHYSICAL_INFRASTRUCTURE"));
+
+        return new org.springframework.security.core.userdetails.User(user.getId().toString(), user.getPassword(), authorities);
     }
 
     public User save(User registrationUser) {
