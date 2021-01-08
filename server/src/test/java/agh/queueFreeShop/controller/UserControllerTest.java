@@ -77,6 +77,22 @@ public class UserControllerTest {
     }
 
     @Test
+    void should_get_400_when_username_too_short() throws Exception {
+        String userJson = "{\"username\":\"usr\" , \"password\":\"register_password\"}";
+
+        mockMvc.perform(post("/register").contentType(MediaType.APPLICATION_JSON).content(userJson))
+                .andExpect(status().is(400));
+    }
+
+    @Test
+    void should_get_400_when_password_too_short() throws Exception {
+        String userJson = "{\"username\":\"username\" , \"password\":\"passwor\"}";
+
+        mockMvc.perform(post("/register").contentType(MediaType.APPLICATION_JSON).content(userJson))
+                .andExpect(status().is(400));
+    }
+
+    @Test
     void user_json_should_contain_username() throws Exception {
         mockMvc.perform(get("/user"))
                 .andExpect(status().isOk())

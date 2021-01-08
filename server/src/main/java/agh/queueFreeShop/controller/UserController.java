@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.validation.Valid;
+
 @Controller
 public class UserController {
     private final UserService userService;
@@ -27,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUserAccount(@RequestBody User requestUser) {
+    public ResponseEntity<?> registerUserAccount(@Valid @RequestBody User requestUser) {
         User user = userRepository.findByUsername(requestUser.getUsername());
         if (user != null)
             throw new UnprocessableEntityException("Username already exists");

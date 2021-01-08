@@ -2,6 +2,7 @@ package agh.queueFreeShop.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -28,6 +29,13 @@ public class ApiExceptionHandler {
     @ExceptionHandler(value = {UnprocessableEntityException.class})
     public ResponseEntity<Object> handleUnprocessableEntityException(UnprocessableEntityException e, WebRequest webRequest) {
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+
+        return createResponseEntity(e, status);
+    }
+
+    @ExceptionHandler(value = {MethodArgumentNotValidException.class})
+    public ResponseEntity<Object> MethodArgumentNotValidException(MethodArgumentNotValidException e, WebRequest webRequest) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
 
         return createResponseEntity(e, status);
     }

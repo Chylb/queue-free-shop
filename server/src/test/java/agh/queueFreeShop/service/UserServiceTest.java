@@ -44,6 +44,20 @@ public class UserServiceTest {
     }
 
     @Test
+    void shouldnt_register_user_when_username_too_short() throws Exception {
+        String json = "{\"username\":\"usr\" , \"password\":\"register_password\"}";
+        mvc.perform(post("/register").contentType(MediaType.APPLICATION_JSON).content(json))
+                .andExpect(status().is(400));
+    }
+
+    @Test
+    void shouldnt_register_user_when_password_too_short() throws Exception {
+        String json = "{\"username\":\"username\" , \"password\":\"passwor\"}";
+        mvc.perform(post("/register").contentType(MediaType.APPLICATION_JSON).content(json))
+                .andExpect(status().is(400));
+    }
+
+    @Test
     void should_login() throws Exception {
         mvc.perform(post("/register").contentType(MediaType.APPLICATION_JSON).content(userJson))
                 .andExpect(status().is(200));
