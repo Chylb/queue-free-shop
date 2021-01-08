@@ -36,6 +36,9 @@ public class ShoppingCart {
     @JsonIgnore
     private boolean finalized;
 
+    @JsonIgnore
+    private boolean paid;
+
     /**
      * Returns CartItem of given product.
      * Returns null if there is no such a product in ShoppingCart.

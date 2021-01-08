@@ -192,11 +192,29 @@ public class ShopServiceTest {
     }
 
     @Test
+    void should_make_payment() throws Exception {
+        shopService.onScannedEnteringCustomer(1L);
+        mvc.perform(post("/shoppingCart/confirmEntry"))
+                .andExpect(status().isOk());
+        mvc.perform(post("/shoppingCart?barcode=" + barcode1))
+                .andExpect(status().is(200));
+        mvc.perform(post("/shoppingCart/finalize"))
+                .andExpect(status().is(200));
+        mvc.perform(post("/shoppingCart/pay"))
+                .andExpect(status().is(200));
+
+        ShoppingCart cart = shoppingCartRepository.getByUserId(1L);
+        assertThat(cart.isPaid()).isTrue();
+    }
+
+    @Test
     void should_let_exit() throws Exception {
         shopService.onScannedEnteringCustomer(1L);
         mvc.perform(post("/shoppingCart/confirmEntry"))
                 .andExpect(status().isOk());
         mvc.perform(post("/shoppingCart/finalize"))
+                .andExpect(status().is(200));
+        mvc.perform(post("/shoppingCart/pay"))
                 .andExpect(status().is(200));
         shopService.onScannedLeavingCustomer(1L);
         mvc.perform(post("/shoppingCart/confirmExit"))
@@ -233,6 +251,20 @@ public class ShopServiceTest {
     }
 
     @Test
+    void should_not_let_exit_when_not_paid() throws Exception {
+        shopService.onScannedEnteringCustomer(1L);
+        mvc.perform(post("/shoppingCart/confirmEntry"))
+                .andExpect(status().isOk());
+        mvc.perform(post("/shoppingCart/finalize"))
+                .andExpect(status().is(200));
+        exitWeight.updateReading(10000);
+        mvc.perform(post("/shoppingCart/confirmExit"))
+                .andExpect(status().isForbidden());
+
+        exitWeight.updateReading(0);
+    }
+
+    @Test
     public void shopping_cart_should_be_deleted_after_exit() throws Exception {
         shopService.onScannedEnteringCustomer(1L);
         mvc.perform(post("/shoppingCart/confirmEntry"))
@@ -240,6 +272,8 @@ public class ShopServiceTest {
         mvc.perform(post("/shoppingCart?barcode=" + barcode1))
                 .andExpect(status().is(200));
         mvc.perform(post("/shoppingCart/finalize"))
+                .andExpect(status().is(200));
+        mvc.perform(post("/shoppingCart/pay"))
                 .andExpect(status().is(200));
         shopService.onScannedLeavingCustomer(1L);
         mvc.perform(post("/shoppingCart/confirmExit"))
@@ -259,6 +293,8 @@ public class ShopServiceTest {
                 .andExpect(status().is(200));
         mvc.perform(post("/shoppingCart/finalize"))
                 .andExpect(status().is(200));
+        mvc.perform(post("/shoppingCart/pay"))
+                .andExpect(status().is(200));
         shopService.onScannedLeavingCustomer(1L);
         mvc.perform(post("/shoppingCart/confirmExit"))
                 .andExpect(status().isOk());
@@ -276,6 +312,8 @@ public class ShopServiceTest {
         mvc.perform(post("/shoppingCart?barcode=" + barcode1))
                 .andExpect(status().is(200));
         mvc.perform(post("/shoppingCart/finalize"))
+                .andExpect(status().is(200));
+        mvc.perform(post("/shoppingCart/pay"))
                 .andExpect(status().is(200));
 
         List<Receipt> receipts = receiptRepository.findAll();

@@ -101,6 +101,8 @@ public class ShopService {
 
         if (user == null)
             throw new NotFoundException("User not found");
+        if(!cartRepository.getByUserId(userId).isPaid())
+            throw new ForbiddenException("Must pay first");
 
         sendNotification(user);
     }
@@ -135,6 +137,17 @@ public class ShopService {
             throw new ForbiddenException("Final weight is incorrect");
 
         cartRepository.delete(cart);
+    }
+
+    @Transactional
+    public void handlePayment(ShoppingCart cart){
+        if(!cart.isFinalized())
+            throw new ForbiddenException("Shopping not finalized");
+        if(cart.isPaid())
+            throw new ForbiddenException("Shopping already paid");
+
+        cart.setPaid(true);
+        cartRepository.save(cart);
     }
 
     public boolean validateWeight(ShoppingCart cart, int finalWeight) {

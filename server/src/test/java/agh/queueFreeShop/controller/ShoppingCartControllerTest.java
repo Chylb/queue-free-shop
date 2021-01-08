@@ -213,6 +213,15 @@ public class ShoppingCartControllerTest {
                 .andExpect(content().string(""));
     }
 
+    //pay()
+
+    @Test
+    void should_pay() throws Exception {
+        mockMvc.perform(post("/shoppingCart/pay"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+    }
+
     //JSON
 
     @Test
@@ -241,6 +250,13 @@ public class ShoppingCartControllerTest {
         mockMvc.perform(get("/shoppingCart"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("finalized").doesNotHaveJsonPath());
+    }
+
+    @Test
+    void cart_json_shouldnt_contain_paid() throws Exception {
+        mockMvc.perform(get("/shoppingCart"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("paid").doesNotHaveJsonPath());
     }
 
     @Test

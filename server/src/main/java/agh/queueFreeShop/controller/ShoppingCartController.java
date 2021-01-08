@@ -85,6 +85,17 @@ public class ShoppingCartController {
         shopService.onCustomerConfirmedExit(user);
     }
 
+    @PostMapping("/pay")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
+    public void makePayment() {
+        Long userId = getUserId();
+        ShoppingCart cart = shoppingCartRepository.getByUserId(userId);
+        if (cart == null)
+            throw new ForbiddenException("Customer not in shop");
+
+        shopService.handlePayment(cart);
+    }
+
     private ShoppingCart getUsersShoppingCart() {
         Long userId = getUserId();
         ShoppingCart cart = shoppingCartRepository.getByUserId(userId);
