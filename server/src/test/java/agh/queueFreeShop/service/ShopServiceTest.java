@@ -3,7 +3,7 @@ package agh.queueFreeShop.service;
 import agh.queueFreeShop.model.CartItem;
 import agh.queueFreeShop.model.Receipt;
 import agh.queueFreeShop.model.ShoppingCart;
-import agh.queueFreeShop.physical.ExitWeight;
+import agh.queueFreeShop.physical.weight.ExitWeight;
 import agh.queueFreeShop.repository.CartItemRepository;
 import agh.queueFreeShop.repository.ReceiptRepository;
 import agh.queueFreeShop.repository.ShoppingCartRepository;

@@ -3,8 +3,10 @@ package agh.queueFreeShop.service;
 import agh.queueFreeShop.exception.ForbiddenException;
 import agh.queueFreeShop.exception.NotFoundException;
 import agh.queueFreeShop.model.*;
-import agh.queueFreeShop.physical.EntranceWeight;
-import agh.queueFreeShop.physical.ExitWeight;
+import agh.queueFreeShop.physical.gate.EntranceGate;
+import agh.queueFreeShop.physical.gate.ExitGate;
+import agh.queueFreeShop.physical.weight.EntranceWeight;
+import agh.queueFreeShop.physical.weight.ExitWeight;
 import agh.queueFreeShop.repository.CartItemRepository;
 import agh.queueFreeShop.repository.ReceiptRepository;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
@@ -30,17 +32,22 @@ public class ShopService {
 
     private final EntranceWeight entranceWeight;
     private final ExitWeight exitWeight;
+    private final EntranceGate entranceGate;
+    private final ExitGate exitGate;
 
     private User enteringCustomer;
     private User leavingCustomer;
 
-    ShopService(ShoppingCartRepository cartRepository, ReceiptRepository receiptRepository, CartItemRepository cartItemRepository, UserRepository userRepository, EntranceWeight entranceWeight, ExitWeight exitWeight) {
+    ShopService(ShoppingCartRepository cartRepository, ReceiptRepository receiptRepository, CartItemRepository cartItemRepository, UserRepository userRepository,
+                EntranceWeight entranceWeight, ExitWeight exitWeight, EntranceGate entranceGate, ExitGate exitGate) {
         this.cartRepository = cartRepository;
         this.receiptRepository = receiptRepository;
         this.cartItemRepository = cartItemRepository;
         this.userRepository = userRepository;
         this.entranceWeight = entranceWeight;
         this.exitWeight = exitWeight;
+        this.entranceGate = entranceGate;
+        this.exitGate = exitGate;
     }
 
     /**
@@ -121,6 +128,8 @@ public class ShopService {
         cart.setItems(new HashSet<>());
         cart.setFinalized(false);
         cart = cartRepository.save(cart);
+
+        entranceGate.open();
         return cart;
     }
 
@@ -137,6 +146,7 @@ public class ShopService {
             throw new ForbiddenException("Final weight is incorrect");
 
         cartRepository.delete(cart);
+        exitGate.open();
     }
 
     @Transactional

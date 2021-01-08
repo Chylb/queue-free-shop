@@ -15,5 +15,7 @@ logging:
   level:
     org:
       hibernate:
+  file:
+    name: log.log
 #        SQL: DEBUG
 #        type: TRACE

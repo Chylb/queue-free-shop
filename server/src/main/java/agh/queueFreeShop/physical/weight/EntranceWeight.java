@@ -1,4 +1,4 @@
-package agh.queueFreeShop.physical;
+package agh.queueFreeShop.physical.weight;
 
 import org.springframework.stereotype.Component;
 
