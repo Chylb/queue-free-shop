@@ -8,7 +8,7 @@ import lombok.Setter;
 import javax.persistence.*;
 
 /**
- * Representation of available products.
+ * Represents product.
  * Only one product exists with given barcode.
  */
 
@@ -28,5 +28,5 @@ public class Product {
     private String imageUrl;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private int weight;
+    private int weight; //used only for weighing purpose
 }

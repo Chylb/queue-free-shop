@@ -5,6 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+/**
+ * Dummy physical exit scanner. Sends scanned user id to {@link ShopService#onScannedLeavingCustomer(Long)}.
+ */
+
 @Component
 public class ExitScanner {
     private final Logger logger = LoggerFactory.getLogger(ExitScanner.class);
@@ -15,6 +19,9 @@ public class ExitScanner {
         this.shopService = shopService;
     }
 
+    /**
+     * Called when scanner <i>scans</i> the customer.
+     */
     public synchronized void scan(Long id){
         logger.info("Scanned customer " + id);
         shopService.onScannedLeavingCustomer(id);

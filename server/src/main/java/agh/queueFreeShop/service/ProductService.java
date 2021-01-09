@@ -15,18 +15,25 @@ import java.util.List;
 public class ProductService {
     private final ProductRepository productRepository;
 
-    ProductService(ProductRepository productRepository ) {
+    ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
-    public List<Product> getAllProducts(){
+    /**
+     * Returns all products.
+     */
+    public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
+    /**
+     * Returns product by barcode if found or else throws:
+     * @exception NotFoundException when product not found
+     */
     public Product getProduct(String barcode) {
         Product product = productRepository.findByBarcode(barcode);
 
-        if(product == null)
+        if (product == null)
             throw new NotFoundException("Product not found");
 
         return product;

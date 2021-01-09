@@ -11,6 +11,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+/**
+ * Represents user.
+ */
+
 @NoArgsConstructor
 @Setter
 @Getter

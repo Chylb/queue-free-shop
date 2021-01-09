@@ -10,6 +10,11 @@ import org.springframework.web.context.request.WebRequest;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+/**
+ * Catches raw api exceptions and converts them into {@link agh.queueFreeShop.exception.ApiException}
+ * which contains proper http status and exception message.
+ */
+
 @ControllerAdvice
 public class ApiExceptionHandler {
     @ExceptionHandler(value = {ForbiddenException.class})
@@ -33,6 +38,9 @@ public class ApiExceptionHandler {
         return createResponseEntity(e, status);
     }
 
+    /*
+    MethodArgumentNotValidException is thrown by @Valid annotation
+     */
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;

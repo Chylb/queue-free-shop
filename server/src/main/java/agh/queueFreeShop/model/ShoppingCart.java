@@ -1,7 +1,6 @@
 package agh.queueFreeShop.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +10,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Represents content of a shopping cart.
+ * Represents content of a shopping cart and shopping process itself.
+ * Exists as long as customer is between entrance and exit gates.
  */
 
 @NoArgsConstructor
@@ -31,13 +31,13 @@ public class ShoppingCart {
     private Set<CartItem> items;
 
     @JsonIgnore
-    private int initialWeight;
+    private int initialWeight; //weight measured at entrance gate
 
     @JsonIgnore
-    private boolean finalized;
+    private boolean finalized; //state when customer can no longer add products to cart and is expected to pay
 
     @JsonIgnore
-    private boolean paid;
+    private boolean paid; //payment is needed before showing up at the exit gate
 
     /**
      * Returns CartItem of given product.
@@ -51,6 +51,9 @@ public class ShoppingCart {
         return null;
     }
 
+    /**
+     * Generates receipt.
+     */
     public Receipt generateReceipt() {
         Receipt receipt = new Receipt();
         Set<ReceiptItem> receiptItems = new LinkedHashSet<>();
@@ -73,6 +76,9 @@ public class ShoppingCart {
         return receipt;
     }
 
+    /**
+     * Calculates expected weight of products inside the cart.
+     */
     @JsonIgnore
     public int getProductsWeight() {
         int productsWeight = 0;

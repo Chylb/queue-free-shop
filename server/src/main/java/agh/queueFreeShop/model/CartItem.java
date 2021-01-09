@@ -18,7 +18,7 @@ import javax.persistence.*;
 @Entity
 public class CartItem {
     @Id
-    @GeneratedValue(strategy =  GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private long id;
 
@@ -31,12 +31,18 @@ public class CartItem {
 
     private int quantity;
 
-    public void addOne(){
+    /**
+     * Increases quantity by one.
+     */
+    public void addOne() {
         quantity++;
     }
 
-    public void removeOne(){
-        if(quantity > 0)
+    /**
+     * Decreases quantity by one if quantity is positive.
+     */
+    public void removeOne() {
+        if (quantity > 0)
             quantity--;
     }
 
@@ -49,7 +55,7 @@ public class CartItem {
     /**
      * Generates ReceiptItem needed to construct receipt.
      */
-    public ReceiptItem generateReceiptItem(){
+    public ReceiptItem generateReceiptItem() {
         ReceiptItem receiptItem = new ReceiptItem();
         receiptItem.setProductName(product.getName());
         receiptItem.setPrice(product.getPrice());

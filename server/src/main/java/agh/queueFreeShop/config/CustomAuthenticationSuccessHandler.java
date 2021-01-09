@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * Authentication success handler that simply returns 200.
+ */
+
 public class CustomAuthenticationSuccessHandler
         extends SimpleUrlAuthenticationSuccessHandler {
 

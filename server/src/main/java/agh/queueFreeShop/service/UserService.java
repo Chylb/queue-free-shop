@@ -13,6 +13,11 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Implements UserDetailsService used in authentication.
+ * Is also responsible for user registration.
+ */
+
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
@@ -32,11 +37,14 @@ public class UserService implements UserDetailsService {
 
         Set<GrantedAuthority> authorities = new HashSet<>();
         if (username.equals("PHYSICAL_INFRASTRUCTURE"))
-            authorities.add(new SimpleGrantedAuthority("PHYSICAL_INFRASTRUCTURE"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_PHYSICAL_INFRASTRUCTURE"));
 
         return new org.springframework.security.core.userdetails.User(user.getId().toString(), user.getPassword(), authorities);
     }
 
+    /**
+     * Saves registered user into the database.
+     */
     public User save(User registrationUser) {
         User user = new User(registrationUser.getUsername(),
                 passwordEncoder.encode(registrationUser.getPassword()));

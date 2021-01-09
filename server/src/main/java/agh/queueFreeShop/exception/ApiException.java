@@ -4,6 +4,11 @@ import org.springframework.http.HttpStatus;
 
 import java.time.ZonedDateTime;
 
+/**
+ * All api exceptions are mapped into this object by {@link agh.queueFreeShop.exception.ApiExceptionHandler}
+ * before being sent to client.
+ */
+
 public class ApiException {
 
     private final String message;

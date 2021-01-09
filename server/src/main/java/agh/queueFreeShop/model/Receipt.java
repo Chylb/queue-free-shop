@@ -18,7 +18,7 @@ import java.util.Set;
 @Entity
 public class Receipt {
     @Id
-    @GeneratedValue(strategy =  GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
 
     @ManyToOne
