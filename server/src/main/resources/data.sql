@@ -1,5 +1,6 @@
 INSERT INTO user (username,password) VALUES
 ('user', '$2a$10$IMrN844rN4iZB0TzJdgs7.2BtsT2j2YZuKFQLF07OByxe4Vy1apna'),
+('user2','$2a$10$VFtRWGCYaFEL.qO6nfuvYehf49SsCA6RChthTFXwV2ovXjsPRzOve'),
 ('PHYSICAL_INFRASTRUCTURE', '$2a$10$cFNW1IY1TAXXJgg0QhLXXewLtjyLuL31zvK48/b/VsdjKOh7zu4ri');
 /* #password: haslo*/
 

@@ -11,6 +11,7 @@ import agh.queueFreeShop.repository.CartItemRepository;
 import agh.queueFreeShop.repository.ReceiptRepository;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
 import agh.queueFreeShop.repository.UserRepository;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -38,8 +39,11 @@ public class ShopService {
     private User enteringCustomer;
     private User leavingCustomer;
 
+    private final SimpMessageSendingOperations messagingTemplate;
+
     ShopService(ShoppingCartRepository cartRepository, ReceiptRepository receiptRepository, CartItemRepository cartItemRepository, UserRepository userRepository,
-                EntranceWeight entranceWeight, ExitWeight exitWeight, EntranceGate entranceGate, ExitGate exitGate) {
+                EntranceWeight entranceWeight, ExitWeight exitWeight, EntranceGate entranceGate, ExitGate exitGate,
+                SimpMessageSendingOperations messagingTemplate) {
         this.cartRepository = cartRepository;
         this.receiptRepository = receiptRepository;
         this.cartItemRepository = cartItemRepository;
@@ -48,6 +52,7 @@ public class ShopService {
         this.exitWeight = exitWeight;
         this.entranceGate = entranceGate;
         this.exitGate = exitGate;
+        this.messagingTemplate = messagingTemplate;
     }
 
     /**
@@ -86,32 +91,29 @@ public class ShopService {
     @Transactional
     public Receipt finalizeShopping(ShoppingCart cart) {
         Receipt receipt = cart.generateReceipt();
-        receipt.setDate( new Date());
+        receipt.setDate(new Date());
         cart.setFinalized(true);
         cartRepository.save(cart);
         return receiptRepository.save(receipt);
     }
 
     public void onScannedEnteringCustomer(Long userId) {
+        sendNotification(userId, "Scanned at entrance");
+
         User user = userRepository.getById(userId);
         enteringCustomer = user;
-
-        if (user == null)
-            throw new NotFoundException("User not found");
-
-        sendNotification(user);
     }
 
     public void onScannedLeavingCustomer(Long userId) {
-        User user = userRepository.getById(userId);
-        leavingCustomer = user;
+        sendNotification(userId, "Scanned at exit");
 
-        if (user == null)
-            throw new NotFoundException("User not found");
-        if(!cartRepository.getByUserId(userId).isPaid())
+        if (cartRepository.getByUserId(userId) == null)
+            throw new ForbiddenException("Customer not in shop");
+        if (!cartRepository.getByUserId(userId).isPaid())
             throw new ForbiddenException("Must pay first");
 
-        sendNotification(user);
+        User user = userRepository.getById(userId);
+        leavingCustomer = user;
     }
 
     @Transactional
@@ -130,6 +132,7 @@ public class ShopService {
         cart = cartRepository.save(cart);
 
         entranceGate.open();
+        leavingCustomer = null;
         return cart;
     }
 
@@ -146,14 +149,15 @@ public class ShopService {
             throw new ForbiddenException("Final weight is incorrect");
 
         cartRepository.delete(cart);
+        enteringCustomer = null;
         exitGate.open();
     }
 
     @Transactional
-    public void handlePayment(ShoppingCart cart){
-        if(!cart.isFinalized())
+    public void handlePayment(ShoppingCart cart) {
+        if (!cart.isFinalized())
             throw new ForbiddenException("Shopping not finalized");
-        if(cart.isPaid())
+        if (cart.isPaid())
             throw new ForbiddenException("Shopping already paid");
 
         cart.setPaid(true);
@@ -165,7 +169,7 @@ public class ShopService {
         return abs(finalWeight - expectedWeight) < 1000;
     }
 
-    public void sendNotification(User user) {
-        //TODO
+    public void sendNotification(Long userId, String notification) {
+        messagingTemplate.convertAndSendToUser(userId.toString(), "/notification", notification);
     }
 }
