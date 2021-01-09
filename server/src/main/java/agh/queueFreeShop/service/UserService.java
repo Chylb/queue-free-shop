@@ -32,7 +32,7 @@ public class UserService implements UserDetailsService {
 
         Set<GrantedAuthority> authorities = new HashSet<>();
         if (username.equals("PHYSICAL_INFRASTRUCTURE"))
-            authorities.add(new SimpleGrantedAuthority("ROLE_PHYSICAL_INFRASTRUCTURE"));
+            authorities.add(new SimpleGrantedAuthority("PHYSICAL_INFRASTRUCTURE"));
 
         return new org.springframework.security.core.userdetails.User(user.getId().toString(), user.getPassword(), authorities);
     }

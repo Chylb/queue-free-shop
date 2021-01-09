@@ -11,7 +11,7 @@ public class ExitScanner {
 
     private final ShopService shopService;
 
-    ExitScanner(ShopService shopService){
+    public ExitScanner(ShopService shopService){
         this.shopService = shopService;
     }
 

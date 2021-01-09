@@ -11,8 +11,10 @@ import agh.queueFreeShop.repository.CartItemRepository;
 import agh.queueFreeShop.repository.ReceiptRepository;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
 import agh.queueFreeShop.repository.UserRepository;
+import lombok.Getter;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.transaction.Transactional;
 import java.util.Date;
@@ -36,7 +38,9 @@ public class ShopService {
     private final EntranceGate entranceGate;
     private final ExitGate exitGate;
 
+    @Getter //getters for testing purposes
     private User enteringCustomer;
+    @Getter
     private User leavingCustomer;
 
     private final SimpMessageSendingOperations messagingTemplate;
@@ -98,21 +102,32 @@ public class ShopService {
     }
 
     public void onScannedEnteringCustomer(Long userId) {
+        enteringCustomer = null;
         sendNotification(userId, "Scanned at entrance");
 
         User user = userRepository.getById(userId);
+
+        if(user == null)
+            throw new NotFoundException("User not found");
+        if (cartRepository.getByUserId(userId) != null)
+            throw new ForbiddenException("Customer already in shop");
+
         enteringCustomer = user;
     }
 
     public void onScannedLeavingCustomer(Long userId) {
+        leavingCustomer = null;
         sendNotification(userId, "Scanned at exit");
 
+        User user = userRepository.getById(userId);
+
+        if(user == null)
+            throw new NotFoundException("User not found");
         if (cartRepository.getByUserId(userId) == null)
             throw new ForbiddenException("Customer not in shop");
         if (!cartRepository.getByUserId(userId).isPaid())
             throw new ForbiddenException("Must pay first");
 
-        User user = userRepository.getById(userId);
         leavingCustomer = user;
     }
 
@@ -132,7 +147,7 @@ public class ShopService {
         cart = cartRepository.save(cart);
 
         entranceGate.open();
-        leavingCustomer = null;
+        enteringCustomer = null;
         return cart;
     }
 
@@ -149,7 +164,7 @@ public class ShopService {
             throw new ForbiddenException("Final weight is incorrect");
 
         cartRepository.delete(cart);
-        enteringCustomer = null;
+        leavingCustomer = null;
         exitGate.open();
     }
 

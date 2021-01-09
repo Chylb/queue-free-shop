@@ -34,7 +34,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
-    public ResponseEntity<Object> MethodArgumentNotValidException(MethodArgumentNotValidException e, WebRequest webRequest) {
+    public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e, WebRequest webRequest) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         return createResponseEntity(e, status);

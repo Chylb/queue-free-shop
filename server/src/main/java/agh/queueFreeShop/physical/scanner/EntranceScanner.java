@@ -11,7 +11,7 @@ public class EntranceScanner {
 
     private final ShopService shopService;
 
-    EntranceScanner(ShopService shopService){
+    public EntranceScanner(ShopService shopService){
         this.shopService = shopService;
     }
 

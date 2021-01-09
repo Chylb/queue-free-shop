@@ -1,6 +1,5 @@
 package agh.queueFreeShop.exception;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +24,14 @@ public class ApiExceptionHandlerTest {
     @Test
     public void responseEntity_should_not_be_null() {
         ForbiddenException exception = new ForbiddenException("message");
-        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleForbiddenException(exception,null);
+        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleForbiddenException(exception, null);
         assertThat(responseEntity).isNotNull();
     }
 
     @Test
     public void responseEntity_should_contain_message() {
         ForbiddenException exception = new ForbiddenException("message");
-        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleForbiddenException(exception,null);
+        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleForbiddenException(exception, null);
 
         ApiException apiException = (ApiException) responseEntity.getBody();
         assertThat(apiException).isNotNull();
@@ -42,7 +41,7 @@ public class ApiExceptionHandlerTest {
     @Test
     public void responseEntity_should_contain_timestamp() {
         ForbiddenException exception = new ForbiddenException("message");
-        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleForbiddenException(exception,null);
+        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleForbiddenException(exception, null);
 
         ApiException apiException = (ApiException) responseEntity.getBody();
         assertThat(apiException).isNotNull();
@@ -57,7 +56,7 @@ public class ApiExceptionHandlerTest {
     @Test
     public void responseEntity_status_should_be_403_for_forbiddenException() {
         ForbiddenException exception = new ForbiddenException("message");
-        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleForbiddenException(exception,null);
+        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleForbiddenException(exception, null);
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCodeValue()).isEqualTo(403);
     }
@@ -65,7 +64,7 @@ public class ApiExceptionHandlerTest {
     @Test
     public void responseEntity_status_should_be_404_for_notFoundException() {
         NotFoundException exception = new NotFoundException("message");
-        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleNotFoundException(exception,null);
+        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleNotFoundException(exception, null);
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCodeValue()).isEqualTo(404);
     }
@@ -73,7 +72,7 @@ public class ApiExceptionHandlerTest {
     @Test
     public void responseEntity_status_should_be_422_for_unprocessableEntityException() {
         UnprocessableEntityException exception = new UnprocessableEntityException("message");
-        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleUnprocessableEntityException(exception,null);
+        ResponseEntity<Object> responseEntity = apiExceptionHandler.handleUnprocessableEntityException(exception, null);
         assertThat(responseEntity).isNotNull();
         assertThat(responseEntity.getStatusCodeValue()).isEqualTo(422);
     }
