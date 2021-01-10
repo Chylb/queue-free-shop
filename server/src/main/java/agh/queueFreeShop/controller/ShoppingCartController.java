@@ -8,15 +8,22 @@ import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.ShoppingCartRepository;
 import agh.queueFreeShop.service.ProductService;
 import agh.queueFreeShop.service.ShopService;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Used for all shopping related matters.
+ */
+
 @RestController
 @RequestMapping(path = "/shoppingCart")
+@ApiResponses({@ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Customer not in shop / Customer should make payment / Customer should head towards exit")
+})
 public class ShoppingCartController {
     private final ShoppingCartRepository shoppingCartRepository;
     private final ProductService productService;
@@ -29,55 +36,59 @@ public class ShoppingCartController {
     }
 
     @GetMapping
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
-    public ResponseEntity<?> getShoppingCart() {
+    @ApiOperation(value = "Get shopping cart", notes = "Returns user's shopping cart.")
+    public ShoppingCart getShoppingCart() {
         ShoppingCart cart = getUsersShoppingCart();
-        return ResponseEntity.ok(cart);
+        return cart;
     }
 
     @PostMapping
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
-    public ResponseEntity<?> addProduct(@RequestParam String barcode) {
+    @ApiOperation(value = "Add product to shopping cart")
+    @ApiResponses(@ApiResponse(code = 404, message = "Product not found"))
+    public ShoppingCart addProduct(@RequestParam(name = "Product's barcode") String barcode) {
         Product product = productService.getProduct(barcode);
 
         ShoppingCart cart = getUsersShoppingCart();
         shopService.addProductToCart(cart, product);
 
-        return ResponseEntity.ok(cart);
+        return cart;
     }
 
     @DeleteMapping
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
-    public ResponseEntity<?> removeProduct(@RequestParam String barcode) {
+    @ApiOperation(value = "Remove product from shopping cart")
+    @ApiResponses(@ApiResponse(code = 404, message = "Product not found"))
+    public ShoppingCart removeProduct(@RequestParam(name = "Product's barcode") String barcode) {
         Product product = productService.getProduct(barcode);
 
         ShoppingCart cart = getUsersShoppingCart();
         shopService.removeProductFromCart(cart, product);
 
-        return ResponseEntity.ok(cart);
+        return cart;
     }
 
     @PostMapping("/finalize")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = Receipt.class)})
-    public ResponseEntity<?> finalizeShopping() {
+    @ApiOperation(value = "Finalize shopping", notes = "From now on the only action you can take is to pay for shopping")
+    public Receipt finalizeShopping() {
         ShoppingCart cart = getUsersShoppingCart();
         Receipt receipt = shopService.finalizeShopping(cart);
 
-        return ResponseEntity.ok(receipt);
+        return receipt;
     }
 
     @PostMapping("/confirmEntry")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = ShoppingCart.class)})
-    public ResponseEntity<?> confirmEntry() {
+    @ApiOperation(value = "Confirm entry", notes = "Opens the entrance gate. Customer must be scanned right before this action.")
+    @ApiResponses(@ApiResponse(code = 403, message = "Customer not at entrance"))
+    public ShoppingCart confirmEntry() {
         User user = new User();
         user.setId(getUserId());
 
         ShoppingCart cart = shopService.onCustomerConfirmedEntry(user);
-        return ResponseEntity.ok(cart);
+        return cart;
     }
 
     @PostMapping("/confirmExit")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
+    @ApiOperation(value = "Confirm exit", notes = "Opens the exit gate. Customer must be scanned right before this action.")
+    @ApiResponses(@ApiResponse(code = 403, message = "Customer not at exit / Final weight is incorrect"))
     public void confirmExit() {
         User user = new User();
         user.setId(getUserId());
@@ -86,7 +97,8 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/pay")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
+    @ApiOperation(value = "Make payment")
+    @ApiResponses(@ApiResponse(code = 403, message = "Customer not in shop / Shopping not finalized / Shopping already paid"))
     public void makePayment() {
         Long userId = getUserId();
         ShoppingCart cart = shoppingCartRepository.getByUserId(userId);
@@ -102,7 +114,10 @@ public class ShoppingCartController {
         if (cart == null)
             throw new ForbiddenException("Customer not in shop");
         if (cart.isFinalized())
-            throw new ForbiddenException("Customer should head towards exit");
+            if (cart.isPaid())
+                throw new ForbiddenException("Customer should head towards exit");
+            else
+                throw new ForbiddenException("Customer should make payment");
 
         return cart;
     }

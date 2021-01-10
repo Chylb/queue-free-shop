@@ -1,13 +1,12 @@
 package agh.queueFreeShop.controller;
 
 import agh.queueFreeShop.exception.UnprocessableEntityException;
-import agh.queueFreeShop.model.ShoppingCart;
 import agh.queueFreeShop.model.User;
 import agh.queueFreeShop.repository.UserRepository;
 import agh.queueFreeShop.service.UserService;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
+
+/**
+ * Responsible for user registration and user account management.
+ */
 
 @Controller
 public class UserController {
@@ -29,6 +32,9 @@ public class UserController {
     }
 
     @PostMapping("/register")
+    @ApiOperation(value = "Register user", notes = "Username between 4-64 characters. Password between 8-64 characters.")
+    @ApiResponses({@ApiResponse(code = 422, message = "Username already exists"),
+            @ApiResponse(code = 400, message = "User not valid")})
     public ResponseEntity<?> registerUserAccount(@Valid @RequestBody User requestUser) {
         User user = userRepository.findByUsername(requestUser.getUsername());
         if (user != null)
@@ -38,12 +44,13 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = User.class)})
-    public ResponseEntity<?> getUser() {
-        return ResponseEntity.ok(userRepository.findById(getUserId()));
+    @ApiOperation(value = "Get user")
+    @ApiResponse(code = 401, message = "Unauthorized")
+    public User getUser() {
+        return userRepository.getById(getUserId());
     }
 
-    private Long getUserId(){
+    private Long getUserId() {
         UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return Long.parseLong(user.getUsername());
     }

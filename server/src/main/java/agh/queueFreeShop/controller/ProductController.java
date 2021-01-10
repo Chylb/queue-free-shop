@@ -2,6 +2,7 @@ package agh.queueFreeShop.controller;
 
 import agh.queueFreeShop.model.Product;
 import agh.queueFreeShop.service.ProductService;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,8 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Simply returns products.
+ */
+
 @RestController
 @RequestMapping(path = "/products")
+@ApiResponses(@ApiResponse(code = 401, message = "Unauthorized"))
 public class ProductController {
     private final ProductService productService;
 
@@ -21,12 +27,14 @@ public class ProductController {
     }
 
     @GetMapping("")
+    @ApiOperation(value = "Get all products in the shop")
     public List<Product> getAll() {
         return productService.getAllProducts();
     }
 
     @GetMapping("/{barcode}")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = Product.class)})
+    @ApiOperation(value = "Get product with given barcode")
+    @ApiResponses(@ApiResponse(code=404, message = "Product not found"))
     public Product getProduct(@PathVariable String barcode) {
         return productService.getProduct(barcode);
     }
