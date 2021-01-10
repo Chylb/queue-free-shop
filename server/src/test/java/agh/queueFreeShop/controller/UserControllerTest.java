@@ -45,9 +45,9 @@ public class UserControllerTest {
         user.setId(1L);
         user.setUsername("username");
 
-        given(this.userRepository.findById(1L)).willReturn(java.util.Optional.ofNullable(user));
+        given(this.userRepository.getById(1L)).willReturn(user);
         given(this.userRepository.findByUsername(user.getUsername())).willReturn(user);
-        given(this.userRepository.findById(2L)).willReturn(java.util.Optional.empty());
+        given(this.userRepository.getById(2L)).willReturn(null);
 
         User someUser = new User();
         someUser.setId(2L);

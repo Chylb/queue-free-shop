@@ -9,6 +9,7 @@ import agh.queueFreeShop.repository.ShoppingCartRepository;
 import agh.queueFreeShop.service.ProductService;
 import agh.queueFreeShop.service.ShopService;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,7 +46,7 @@ public class ShoppingCartController {
     @PostMapping
     @ApiOperation(value = "Add product to shopping cart")
     @ApiResponses(@ApiResponse(code = 404, message = "Product not found"))
-    public ShoppingCart addProduct(@RequestParam(name = "Product's barcode") String barcode) {
+    public ShoppingCart addProduct(@ApiParam(name = "Product's barcode") @RequestParam String barcode) {
         Product product = productService.getProduct(barcode);
 
         ShoppingCart cart = getUsersShoppingCart();
@@ -57,7 +58,7 @@ public class ShoppingCartController {
     @DeleteMapping
     @ApiOperation(value = "Remove product from shopping cart")
     @ApiResponses(@ApiResponse(code = 404, message = "Product not found"))
-    public ShoppingCart removeProduct(@RequestParam(name = "Product's barcode") String barcode) {
+    public ShoppingCart removeProduct(@ApiParam(name = "Product's barcode") @RequestParam String barcode) {
         Product product = productService.getProduct(barcode);
 
         ShoppingCart cart = getUsersShoppingCart();
